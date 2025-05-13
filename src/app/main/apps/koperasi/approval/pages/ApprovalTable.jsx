@@ -517,512 +517,65 @@ export default function ApprovalTable(props) {
     link.click();
   };
 
-    const fuzzySakamotos = (
-      valuePendapatan,
-      valuePengajuan,
-      valueJangkaWaktu,
-      valueJaminan
-    ) => {
-      const nomPendapatan = valuePendapatan;
-      const nomPengajuan = valuePengajuan;
-      const nomJangkaWaktu = valueJangkaWaktu;
-      const nomJaminan = valueJaminan;
-      // const nomPendapatan = 10000000;
-      // const nomPengajuan = 60000000;
-      // const nomJangkaWaktu = 7;
-      // const nomJaminan = 570000;
+  // Fungsi untuk menghitung nilai maksimum dan minimum dari array angka
+  const calculateMinMax = (arr) => ({
+    max: Math.max(...arr),
+    min: Math.min(...arr),
+  });
 
-      const valPendapatanSedikit = 2000000;
-      const valPendapatanSedang = 4000000;
-      const valPendapatanBanyak = 8000000;
+  // Mengonversi nilai ke integer jika bertipe string
+  const toInt = (value) =>
+    typeof value === "string" ? parseInt(value, 10) : value;
+  const pendapatanBersih = rows.map((item) => toInt(item.pendapatanBersih));
+  const jangkaWaktu = rows.map((item) => toInt(item.jangkaWaktu));
+  const nominalPermohonan = rows.map((item) => toInt(item.nominalPermohonan));
+  const jaminan = rows.map((item) => toInt(item.jaminan));
 
-      const valPengajuanSedikit = 3000000;
-      const valPengajuanSedang = 5000000;
-      const valPengajuanBanyak = 10000000;
-
-      const valJangkaWaktuPendek = 3;
-      const valJangkaWaktuSedang = 6;
-      const valJangkaWaktuPanjang = 12;
-
-      const valJaminanKecil = 5000000;
-      const valJaminanSedang = 7000000;
-      const valJaminanBesar = 10000000;
-
-      const valLayak = 90;
-      const valTidakLayak = 10;
-
-      const fuzzyMembershipKecil = (nilaiInput, kecil, sedang, besar) => {
-        if (nilaiInput <= kecil) {
-          return 1; // Nilai penuh jika <= kecil
-        }
-        if (nilaiInput > kecil && nilaiInput < sedang) {
-          return (sedang - nilaiInput) / (sedang - kecil); // Nilai antara kecil dan sedang
-        }
-        if (nilaiInput >= sedang) {
-          return 0; // Nilai di luar rentang
-        }
-      };
-
-      const fuzzyMembershipSedang = (nilaiInput, kecil, sedang, besar) => {
-        if (nilaiInput >= kecil && nilaiInput < sedang) {
-          return (nilaiInput - kecil) / (sedang - kecil);
-        }
-        if (nilaiInput === sedang) {
-          return 1;
-        }
-        if (nilaiInput > sedang && nilaiInput <= besar) {
-          return (besar - nilaiInput) / (besar - sedang);
-        }
-        return 0; // Nilai di luar rentang
-      };
-
-      const fuzzyMembershipBanyak = (nilaiInput, kecil, sedang, besar) => {
-        if (nilaiInput <= sedang) {
-          return 0; // Nilai penuh 0 jika <= sedang
-        }
-        if (nilaiInput > sedang && nilaiInput < besar) {
-          return (nilaiInput - sedang) / (besar - sedang); // Nilai antara sedang dan besar
-        }
-        if (nilaiInput >= besar) {
-          return 1; // Nilai penuh 1 jika >= besar
-        }
-      };
-
-      // pendapatan 3,5
-      // pendapatanSedikit 2
-
-      function resultPendapatan(nomPendapatan) {
-        // console.log(nomPendapatan < valPendapatanSedikit, 'nomPendapatan < valPendapatanSedikit')
-        if (nomPendapatan < valPendapatanSedikit) {
-          const SEDIKIT = fuzzyMembershipKecil(
-            nomPendapatan,
-            valPendapatanSedikit,
-            valPendapatanSedang,
-            valPendapatanBanyak
-          );
-          return {
-            pendapatan: {
-              SEDIKIT,
-            },
-          };
-        } else if (
-          nomPendapatan >= valPendapatanSedikit &&
-          nomPendapatan <= valPendapatanSedang
-        ) {
-          const SEDIKIT = fuzzyMembershipKecil(
-            nomPendapatan,
-            valPendapatanSedikit,
-            valPendapatanSedang,
-            valPendapatanBanyak
-          );
-          const SEDANG = fuzzyMembershipSedang(
-            nomPendapatan,
-            valPendapatanSedikit,
-            valPendapatanSedang,
-            valPendapatanBanyak
-          );
-          return {
-            pendapatan: {
-              SEDIKIT,
-              SEDANG,
-            },
-          };
-        } else if (
-          nomPendapatan > valPendapatanSedang &&
-          nomPendapatan <= valPendapatanBanyak
-        ) {
-          const SEDANG = fuzzyMembershipSedang(
-            nomPendapatan,
-            valPendapatanSedikit,
-            valPendapatanSedang,
-            valPendapatanBanyak
-          );
-          const BANYAK = fuzzyMembershipBanyak(
-            nomPendapatan,
-            valPendapatanSedikit,
-            valPendapatanSedang,
-            valPendapatanBanyak
-          );
-          return {
-            pendapatan: {
-              SEDANG,
-              BANYAK,
-            },
-          };
-        } else {
-          const BANYAK = fuzzyMembershipBanyak(
-            nomPendapatan,
-            valPendapatanSedikit,
-            valPendapatanSedang,
-            valPendapatanBanyak
-          );
-          return {
-            pendapatan: {
-              BANYAK,
-            },
-          };
-        }
-      }
-      function resultPengajuan(nomPengajuan) {
-        if (nomPengajuan < valPengajuanSedikit) {
-          const SEDIKIT = fuzzyMembershipKecil(
-            nomPengajuan,
-            valPengajuanSedikit,
-            valPengajuanSedang,
-            valPengajuanBanyak
-          );
-          return {
-            pengajuan: {
-              SEDIKIT,
-            },
-          };
-        } else if (
-          nomPengajuan >= valPengajuanSedikit &&
-          nomPengajuan <= valPengajuanSedang
-        ) {
-          const SEDIKIT = fuzzyMembershipKecil(
-            nomPengajuan,
-            valPengajuanSedikit,
-            valPengajuanSedang,
-            valPengajuanBanyak
-          );
-          const SEDANG = fuzzyMembershipSedang(
-            nomPengajuan,
-            valPengajuanSedikit,
-            valPengajuanSedang,
-            valPengajuanBanyak
-          );
-          return {
-            pengajuan: {
-              SEDIKIT,
-              SEDANG,
-            },
-          };
-        } else if (
-          nomPengajuan > valPengajuanSedang &&
-          nomPengajuan <= valPengajuanBanyak
-        ) {
-          const SEDANG = fuzzyMembershipSedang(
-            nomPengajuan,
-            valPengajuanSedikit,
-            valPengajuanSedang,
-            valPengajuanBanyak
-          );
-          const BANYAK = fuzzyMembershipBanyak(
-            nomPengajuan,
-            valPengajuanSedikit,
-            valPengajuanSedang,
-            valPengajuanBanyak
-          );
-          return {
-            pengajuan: {
-              SEDANG,
-              BANYAK,
-            },
-          };
-        } else {
-          const BANYAK = fuzzyMembershipBanyak(
-            nomPengajuan,
-            valPengajuanSedikit,
-            valPengajuanSedang,
-            valPengajuanBanyak
-          );
-          return {
-            pengajuan: {
-              BANYAK,
-            },
-          };
-        }
-      }
-      function resultJangkaWaktu(nomJangkaWaktu) {
-        if (nomJangkaWaktu < valJangkaWaktuPendek) {
-          const PENDEK = fuzzyMembershipKecil(
-            nomJangkaWaktu,
-            valJangkaWaktuPendek,
-            valJangkaWaktuSedang,
-            valJangkaWaktuPanjang
-          );
-          return {
-            jangkaWaktu: {
-              PENDEK,
-            },
-          };
-        } else if (
-          nomJangkaWaktu >= valJangkaWaktuPendek &&
-          nomJangkaWaktu <= valJangkaWaktuSedang
-        ) {
-          const PENDEK = fuzzyMembershipKecil(
-            nomJangkaWaktu,
-            valJangkaWaktuPendek,
-            valJangkaWaktuSedang,
-            valJangkaWaktuPanjang
-          );
-          const SEDANG = fuzzyMembershipSedang(
-            nomJangkaWaktu,
-            valJangkaWaktuPendek,
-            valJangkaWaktuSedang,
-            valJangkaWaktuPanjang
-          );
-          return {
-            jangkaWaktu: {
-              PENDEK,
-              SEDANG,
-            },
-          };
-        } else if (
-          nomJangkaWaktu > valJangkaWaktuSedang &&
-          nomJangkaWaktu <= valJangkaWaktuPanjang
-        ) {
-          const SEDANG = fuzzyMembershipSedang(
-            nomJangkaWaktu,
-            valJangkaWaktuPendek,
-            valJangkaWaktuSedang,
-            valJangkaWaktuPanjang
-          );
-          const PANJANG = fuzzyMembershipBanyak(
-            nomJangkaWaktu,
-            valJangkaWaktuPendek,
-            valJangkaWaktuSedang,
-            valJangkaWaktuPanjang
-          );
-          return {
-            jangkaWaktu: {
-              SEDANG,
-              PANJANG,
-            },
-          };
-        } else {
-          const PANJANG = fuzzyMembershipBanyak(
-            nomJangkaWaktu,
-            valJangkaWaktuPendek,
-            valJangkaWaktuSedang,
-            valJangkaWaktuPanjang
-          );
-          return {
-            jangkaWaktu: {
-              PANJANG,
-            },
-          };
-        }
-      }
-      function resultJaminan(nomJaminan) {
-        if (nomJaminan < valJaminanKecil) {
-          const KECIL = fuzzyMembershipKecil(
-            nomJaminan,
-            valJaminanKecil,
-            valJaminanSedang,
-            valJaminanBesar
-          );
-          return {
-            jaminan: {
-              KECIL,
-            },
-          };
-        } else if (
-          nomJaminan >= valJaminanKecil &&
-          nomJaminan <= valJaminanSedang
-        ) {
-          const KECIL = fuzzyMembershipKecil(
-            nomJaminan,
-            valJaminanKecil,
-            valJaminanSedang,
-            valJaminanBesar
-          );
-          const SEDANG = fuzzyMembershipSedang(
-            nomJaminan,
-            valJaminanKecil,
-            valJaminanSedang,
-            valJaminanBesar
-          );
-          return {
-            jaminan: {
-              KECIL,
-              SEDANG,
-            },
-          };
-        } else if (
-          nomJaminan > valJaminanSedang &&
-          nomJaminan <= valJaminanBesar
-        ) {
-          const SEDANG = fuzzyMembershipSedang(
-            nomJaminan,
-            valJaminanKecil,
-            valJaminanSedang,
-            valJaminanBesar
-          );
-          const BESAR = fuzzyMembershipBanyak(
-            nomJaminan,
-            valJaminanKecil,
-            valJaminanSedang,
-            valJaminanBesar
-          );
-          return {
-            jaminan: {
-              SEDANG,
-              BESAR,
-            },
-          };
-        } else {
-          const BESAR = fuzzyMembershipBanyak(
-            nomJaminan,
-            valJaminanKecil,
-            valJaminanSedang,
-            valJaminanBesar
-          );
-          return {
-            jaminan: {
-              BESAR,
-            },
-          };
-        }
-      }
-
-      function resultValueZ(nilaiKombinasi, tf) {
-        if (tf === true) {
-          return nilaiKombinasi * valLayak;
-        } else if (tf === false) {
-          return nilaiKombinasi * valTidakLayak;
-        } else {
-          return null;
-        }
-      }
-
-      const pendapatan = resultPendapatan(nomPendapatan);
-      const pengajuan = resultPengajuan(nomPengajuan);
-      const jangkaWaktu = resultJangkaWaktu(nomJangkaWaktu);
-      const jaminan = resultJaminan(nomJaminan);
-
-      const hasilGabungan = {};
-
-      // Fungsi untuk menggabungkan nilai dari objek
-      const mergeObjects = (target, source) => {
-        for (const [key, value] of Object.entries(source)) {
-          if (target.hasOwnProperty(key)) {
-            // Jika kunci sudah ada, gabungkan nilainya menjadi array
-            target[key] = Array.isArray(target[key])
-              ? [...target[key], value]
-              : [target[key], value];
-          } else {
-            // Jika kunci belum ada, tambahkan nilai baru
-            target[key] = value;
-          }
-        }
-      };
-
-      // Gabungkan objek-objek tersebut
-      mergeObjects(hasilGabungan, pendapatan);
-      mergeObjects(hasilGabungan, pengajuan);
-      mergeObjects(hasilGabungan, jangkaWaktu);
-      mergeObjects(hasilGabungan, jaminan);
-
-      function calculateCombinations(data) {
-        const keys = Object.keys(data);
-        const combinations = [];
-
-        function combine(current, depth) {
-          if (depth === keys.length) {
-            // Periksa jika salah satu nilai adalah 0, maka abaikan kombinasi ini
-            const hasZeroValue = Object.values(current).some(
-              (item) => item.value === 0
-            );
-            if (!hasZeroValue) {
-              combinations.push(current);
-            }
-            return;
-          }
-
-          const key = keys[depth];
-          const values = data[key];
-
-          for (const [label, value] of Object.entries(values)) {
-            combine(
-              {
-                ...current,
-                [key]: { label, value },
-              },
-              depth + 1
-            );
-          }
-        }
-
-        combine({}, 0);
-        return combinations;
-      }
-
-      // Hitung kombinasi dan cetak hasil
-      const combinations = calculateCombinations(hasilGabungan);
-      const trueFalse = [];
-      const allValueZ = [];
-      const valueCombine = [];
-      const ValueCariAturan = [];
-      const preZTerbobot = [];
-      const alfaPredikat = [];
-
-      combinations.forEach((combo, index) => {
-        const valueCombo = [
-          combo.pendapatan.value,
-          combo.pengajuan.value,
-          combo.jangkaWaktu.value,
-          combo.jaminan.value,
-        ];
-        const mathMins = Math.min(...valueCombo);
-        const cariAturan = (pendapatan, pengajuan, jangkaWaktu, jaminan) => {
-          return DataAturanFuzzy.find(
-            (aturan) =>
-              aturan.pendapatan === pendapatan &&
-              aturan.pengajuan === pengajuan &&
-              aturan.jangkaWaktu === jangkaWaktu &&
-              aturan.jaminan === jaminan
-          );
-        };
-
-        const aturanTerkait = cariAturan(
-          combo?.pendapatan?.label,
-          combo?.pengajuan?.label,
-          combo?.jangkaWaktu?.label,
-          combo?.jaminan?.label
-        );
-        ValueCariAturan.push(aturanTerkait);
-        const resultCombineZ = resultValueZ(mathMins, aturanTerkait?.result);
-        trueFalse.push(aturanTerkait?.result);
-        allValueZ.push(resultCombineZ);
-        valueCombine.push(mathMins);
-        if (aturanTerkait?.result) {
-          preZTerbobot.push(
-            valTidakLayak + mathMins * (valLayak - valTidakLayak)
-          );
-        } else {
-          preZTerbobot.push(valLayak - mathMins * (valLayak - valTidakLayak));
-        }
-        alfaPredikat.push(mathMins);
-
-        // Mencari nilai terkecil dari combo
-      });
-
-      const formattedNumbersPreZTerbobot = preZTerbobot?.map((num) =>
-        parseFloat(num.toFixed(2))
-      );
-      const formattedNumbersAlfaPredikat = alfaPredikat?.map((num) =>
-        parseFloat(num.toFixed(2))
-      );
-
-      // Mengalikan kedua array berdasarkan indeks
-      const sigmaAlfaPredikatXZ = formattedNumbersAlfaPredikat
-        .map((value, index) => value * formattedNumbersPreZTerbobot[index])
-        .reduce((sum, current) => sum + current, 0);
-
-      const sigmaAlfaPredikat = formattedNumbersAlfaPredikat.reduce(
-        (total, num) => total + num,
-        0
-      );
-
-      const zTerbobot = sigmaAlfaPredikatXZ / sigmaAlfaPredikat;
-
-      // Rumus preZTerbobotTidakLayak = valLayak - alfaPredikat * (valLayak - valTidakLayak)
-      // Rumus preZTerbobotLayak = valTidakLayak + alfaPredikat * (valLayak - valTidakLayak)
-
-      return parseFloat(zTerbobot.toFixed(2));
+  // Fungsi untuk menghitung persentase dengan 4 parameter
+  const calculatePercentage = (
+    Valpendapatan,
+    ValPengajuan,
+    ValJangkaWaktu,
+    ValJaminan,
+    index
+  ) => {
+    // Mendefinisikan bobot benefit dan cost
+    const benefit = {
+      pendapatan: 0.3,
+      jaminan: 0.25,
     };
+    const cost = {
+      pengajuan: 0.25,
+      jangkaWaktu: 0.2,
+    };
+
+    // Menghitung nilai tertinggi dan terendah
+    const results = {
+      pendapatanBersih: calculateMinMax(pendapatanBersih),
+      jangkaWaktu: calculateMinMax(jangkaWaktu),
+      nominalPermohonan: calculateMinMax(nominalPermohonan),
+      jaminan: calculateMinMax(jaminan),
+    };
+
+    // Menghitung nilai normalisasi
+    const valResultPendapatan = Valpendapatan / results?.pendapatanBersih?.max;
+    const valResultPengajuan = results?.nominalPermohonan?.min / ValPengajuan;
+    const valResultJangkaWaktu = results?.jangkaWaktu?.min / ValJangkaWaktu;
+    const valResultJaminan = ValJaminan / results?.jaminan?.max;
+
+
+    // Menghitung nilai akhir
+    const res =
+      benefit.pendapatan * valResultPendapatan +
+      cost.pengajuan * valResultPengajuan +
+      benefit.jaminan * valResultJaminan +
+      cost.jangkaWaktu * valResultJangkaWaktu;
+
+    // Mengonversi hasil ke persentase
+    const percent = (res * 100).toFixed(2) + "%";
+
+    return percent;
+  };
 
 
   return (
@@ -1205,6 +758,7 @@ export default function ApprovalTable(props) {
                 // console.log(row?.jumlahPendapatan, "  row?.jumlahPendapatan");
                 // console.log(row?.nominalPermohonan, " row?.nominalPermohonan");
                 // console.log(row?.jangkaWaktu, " row?.jangkaWaktu");
+                // console.log(row?.jaminan, " row?.jaminan");
 
                 return (
                   <TableRow key={row.id} hover role="checkbox" tabIndex={-1}>
@@ -1215,11 +769,12 @@ export default function ApprovalTable(props) {
                         : row?.namaNasabah?.nama}
                     </TableCell>
                     <TableCell>
-                      {fuzzySakamotos(
-                        row?.pendapatanBersih,
+                      {calculatePercentage(
+                        row?.jumlahPendapatan,
                         row?.nominalPermohonan,
-                        extractInteger(row?.jangkaWaktu),
-                        extractInteger(row?.jaminan)
+                        row?.jangkaWaktu,
+                        row?.jaminan,
+                        index
                       )}
                       {/* {fuzzySakamotos(10000000, 60000000, 7, 570000)} */}
                     </TableCell>
