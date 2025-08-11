@@ -131,6 +131,28 @@ const jenKel = [
   { kelamin: "Perempuan", id: 2 },
 ];
 
+const sanitizeInput = (value, type = "default") => {
+  if (!value) return value;
+
+  switch (type) {
+    case "nama":
+      // Hanya huruf, spasi, dan titik
+      return value.replace(/[^a-zA-Z\s.]/g, "");
+    case "nik":
+      // Hanya angka
+      return value.replace(/\D/g, "");
+    case "rekening":
+      // Hanya angka dan titik
+      return value.replace(/[^0-9.]/g, "");
+    case "alamat":
+      // Huruf, angka, spasi, dan karakter alamat umum
+      return value.replace(/[^\w\s.,-/]/g, "");
+    default:
+      // Default sanitasi untuk karakter umum
+      return value.replace(/[^\w\s.,-]/g, "");
+  }
+};
+
 export default function MasterNasabahTable(props) {
   const dispatch = useDispatch();
   const [data, setData] = React.useState([]);
@@ -521,38 +543,52 @@ export default function MasterNasabahTable(props) {
             <div className="container mx-auto px-4 py-10">
               <div className="flex flex-wrap gap-6 p-5 bg-white shadow-md rounded-md">
                 <TextField
-                  value={dataEdit?.nama}
+                  value={dataEdit?.nama || ""}
                   onChange={(e) =>
-                    setDataEdit({ ...dataEdit, nama: e.target.value })
+                    setDataEdit({
+                      ...dataEdit,
+                      nama: sanitizeInput(e.target.value, "nama").slice(0, 100), // Batasan 100 karakter
+                    })
                   }
                   id="outlined-basic"
                   label="Nama Nasabah"
                   variant="outlined"
                   className="flex-grow"
+                  inputProps={{ maxLength: 100 }}
                 />
+
                 <TextField
-                  value={dataEdit?.mstRekening}
+                  value={dataEdit?.mstRekening || ""}
                   onChange={(e) => {
-                    const formatNoRek = formatRekening(e.target.value);
-                    setDataEdit({ ...dataEdit, mstRekening: formatNoRek });
+                    const sanitizedValue = sanitizeInput(
+                      e.target.value,
+                      "rekening"
+                    );
+                    const formatNoRek = formatRekening(sanitizedValue);
+                    setDataEdit({
+                      ...dataEdit,
+                      mstRekening: formatNoRek,
+                    });
                   }}
                   id="outlined-basic"
                   label="No Rek"
                   variant="outlined"
-                  // type='number'
                   inputProps={{ maxLength: 10 }}
                   className="flex-grow"
                 />
+
                 <TextField
-                  value={dataEdit?.mstNik}
+                  value={dataEdit?.mstNik || ""}
                   onChange={(e) => {
-                    setDataEdit({ ...dataEdit, mstNik: e.target.value });
+                    setDataEdit({
+                      ...dataEdit,
+                      mstNik: sanitizeInput(e.target.value, "nik").slice(0, 16), // NIK biasanya 16 digit
+                    });
                   }}
                   id="outlined-basic"
                   label="Nik"
-                  type="number"
                   inputProps={{
-                    maxLength: 10, // Batas maksimum karakter
+                    maxLength: 16,
                   }}
                   variant="outlined"
                   className="flex-grow"

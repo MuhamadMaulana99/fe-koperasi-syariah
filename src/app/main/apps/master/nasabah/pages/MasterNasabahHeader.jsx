@@ -19,6 +19,11 @@ import {
   TextField,
 } from "@mui/material";
 
+// ✅ Fungsi membersihkan karakter aneh
+const sanitizeInput = (value) => {
+  return value.replace(/[^a-zA-Z0-9\s.,-]/g, "");
+};
+
 const jenKel = [
   { kelamin: "Laki-laki", id: 1 },
   { kelamin: "Perempuan", id: 2 },
@@ -49,7 +54,7 @@ function MasterNasabahHeader(props) {
   };
 
   const formatRekening = (value) => {
-    const cleaned = value.replace(/\D/g, ""); // Hapus non-digit
+    const cleaned = value.replace(/\D/g, "");
     const match = cleaned.match(/^(\d{2})(\d{2})(\d{4})?$/);
     if (match) {
       return [match[1], match[2], match[3]].filter(Boolean).join(".");
@@ -67,6 +72,7 @@ function MasterNasabahHeader(props) {
     mstKabupaten: null,
     mstProvinsi: null,
   });
+
   const body = {
     nama: stateBody?.nama,
     mstNik: stateBody?.mstNik,
@@ -78,7 +84,6 @@ function MasterNasabahHeader(props) {
     mstProvinsi: stateBody?.mstProvinsi?.nama,
   };
 
-  // console.log(body, 'body')
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -97,12 +102,12 @@ function MasterNasabahHeader(props) {
       mstProvinsi: null,
     });
   };
+
   const HandelSubmit = () => {
     setLoading(true);
     axios
       .post(`${process.env.REACT_APP_API_URL_API_}/masterNasabah`, body)
       .then((res) => {
-        // setData(res?.data);
         props.getData();
         handleClose();
         setLoading(false);
@@ -119,7 +124,6 @@ function MasterNasabahHeader(props) {
         );
       })
       .catch((err) => {
-        // setData([]);
         handleClose();
         setLoading(false);
         const errStatus = err.response.status;
@@ -150,26 +154,19 @@ function MasterNasabahHeader(props) {
             variant: "error",
           })
         );
-        console.log(err);
       });
   };
 
   const fetchProvinsi = async () => {
     const res = await axios.get(urlProvinsi);
     setProvinsi(res.data);
-    // console.log(res,'ress')
   };
-  // useEffect(() => {
-  //   fetchProvinsi();
-  // }, []);
 
   const handleProvinsiChange = async (value) => {
-    // console.log(value, 'value')
     setSelectedProvinsi(value);
     setKabupaten([]);
     setKecamatan([]);
     setKelurahan([]);
-
     if (value) {
       const res = await axios.get(`${urlKabupaten}${value.id}.json`);
       setKabupaten(res.data);
@@ -180,7 +177,6 @@ function MasterNasabahHeader(props) {
     setSelectedKabupaten(value);
     setKecamatan([]);
     setKelurahan([]);
-
     if (value) {
       const res = await axios.get(`${urlKecamatan}${value.id}.json`);
       setKecamatan(res.data);
@@ -190,15 +186,14 @@ function MasterNasabahHeader(props) {
   const handleKecamatanChange = async (value) => {
     setSelectedKecamatan(value);
     setKelurahan([]);
-
     if (value) {
       const res = await axios.get(`${urlKelurahan}${value.id}.json`);
       setKelurahan(res.data);
     }
   };
+
   const handleFocus = (e) => {
     const getId = e.target.id;
-    // console.log(getId, ';get')
     switch (getId) {
       case "provinsi":
         fetchProvinsi();
@@ -217,28 +212,22 @@ function MasterNasabahHeader(props) {
     (value) => value !== null && value !== ""
   );
 
-  // console.log(kabupaten, 'kabupaten')
-  // console.log(kecamatan, 'kecamatan')
-  // console.log(kelurahan, 'kelurahan')
   return (
     <div className="flex flex-col sm:flex-row space-y-16 sm:space-y-0 flex-1 w-full items-center justify-between py-32 px-24 md:px-32">
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Tambah Master Nasabah</DialogTitle>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Tambah Master Nasabah</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText>
             <div className="container mx-auto px-4 py-10">
               <div className="flex flex-wrap gap-6 p-5 bg-white shadow-md rounded-md">
                 <TextField
                   value={stateBody?.nama}
                   onChange={(e) =>
-                    setStateBody({ ...stateBody, nama: e.target.value })
+                    setStateBody({
+                      ...stateBody,
+                      nama: sanitizeInput(e.target.value),
+                    })
                   }
-                  id="outlined-basic"
                   label="Nama Nasabah"
                   variant="outlined"
                   className="flex-grow"
@@ -246,38 +235,37 @@ function MasterNasabahHeader(props) {
                 <TextField
                   value={stateBody?.mstRekening}
                   onChange={(e) => {
-                    const formatNoRek = formatRekening(e.target.value);
+                    const inputValue = e.target.value.replace(/[^\d.]/g, "");
+                    const formatNoRek = formatRekening(inputValue);
                     setStateBody({ ...stateBody, mstRekening: formatNoRek });
                   }}
-                  id="outlined-basic"
                   label="No Rek"
                   variant="outlined"
-                  // type='number'
                   inputProps={{ maxLength: 10 }}
                   className="flex-grow"
                 />
                 <TextField
                   value={stateBody?.mstNik}
                   onChange={(e) => {
-                    setStateBody({ ...stateBody, mstNik: e.target.value });
+                    const onlyDigits = e.target.value.replace(/[^\d]/g, "");
+                    setStateBody({ ...stateBody, mstNik: onlyDigits });
                   }}
-                  id="outlined-basic"
                   label="Nik"
-                  type="number"
-                  inputProps={{
-                    maxLength: 10, // Batas maksimum karakter
-                  }}
+                  type="text"
+                  inputProps={{ maxLength: 16 }}
                   variant="outlined"
                   className="flex-grow"
                 />
                 <Autocomplete
                   disablePortal
                   fullWidth
-                  id="combo-box-demo"
                   getOptionLabel={(option) => option.kelamin}
                   value={stateBody?.mstjenisKelamin}
                   onChange={(e, newValue) =>
-                    setStateBody({ ...stateBody, mstjenisKelamin: newValue })
+                    setStateBody({
+                      ...stateBody,
+                      mstjenisKelamin: newValue,
+                    })
                   }
                   options={jenKel}
                   renderInput={(params) => (
@@ -287,17 +275,15 @@ function MasterNasabahHeader(props) {
                 />
                 <Autocomplete
                   fullWidth
-                  className="flex-grow"
                   id="provinsi"
                   onFocus={handleFocus}
                   options={provinsi}
                   value={stateBody?.mstProvinsi}
                   getOptionLabel={(option) => option.nama}
-                  onChange={(event, newVlue) => {
-                    if (newVlue) {
-                      handleProvinsiChange(newVlue);
-                      setStateBody({ ...stateBody, mstProvinsi: newVlue });
-                      // setProvinsi(newVlue)
+                  onChange={(event, newValue) => {
+                    if (newValue) {
+                      handleProvinsiChange(newValue);
+                      setStateBody({ ...stateBody, mstProvinsi: newValue });
                     } else {
                       handleProvinsiChange(null);
                       setStateBody({
@@ -314,12 +300,7 @@ function MasterNasabahHeader(props) {
                     }
                   }}
                   renderInput={(params) => (
-                    <TextField
-                      fullWidth
-                      {...params}
-                      label="Pilih Provinsi"
-                      variant="outlined"
-                    />
+                    <TextField {...params} label="Pilih Provinsi" />
                   )}
                 />
                 <Autocomplete
@@ -327,14 +308,12 @@ function MasterNasabahHeader(props) {
                   id="kabupaten"
                   onFocus={handleFocus}
                   options={kabupaten}
-                  className="flex-grow"
                   value={stateBody?.mstKabupaten}
                   getOptionLabel={(option) => option.nama}
-                  onChange={(event, newVlue) => {
-                    if (newVlue) {
-                      handleKabupatenChange(newVlue);
-                      setStateBody({ ...stateBody, mstKabupaten: newVlue });
-                      // setKabupaten(newVlue)
+                  onChange={(event, newValue) => {
+                    if (newValue) {
+                      handleKabupatenChange(newValue);
+                      setStateBody({ ...stateBody, mstKabupaten: newValue });
                     } else {
                       handleKabupatenChange(null);
                       setStateBody({
@@ -348,13 +327,8 @@ function MasterNasabahHeader(props) {
                       setKelurahan([]);
                     }
                   }}
-                  disabled={!selectedProvinsi}
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Pilih Kabupaten"
-                      variant="outlined"
-                    />
+                    <TextField {...params} label="Pilih Kabupaten" />
                   )}
                 />
                 <Autocomplete
@@ -362,14 +336,12 @@ function MasterNasabahHeader(props) {
                   id="kecamatan"
                   onFocus={handleFocus}
                   options={kecamatan}
-                  className="flex-grow"
                   value={stateBody?.mstKecamatan}
                   getOptionLabel={(option) => option.nama}
-                  onChange={(event, newVlue) => {
-                    if (newVlue) {
-                      handleKecamatanChange(newVlue);
-                      setStateBody({ ...stateBody, mstKecamatan: newVlue });
-                      // setKecamatan(newVlue)
+                  onChange={(event, newValue) => {
+                    if (newValue) {
+                      handleKecamatanChange(newValue);
+                      setStateBody({ ...stateBody, mstKecamatan: newValue });
                     } else {
                       handleKecamatanChange(null);
                       setStateBody({
@@ -381,21 +353,18 @@ function MasterNasabahHeader(props) {
                       setKelurahan([]);
                     }
                   }}
-                  disabled={!selectedKabupaten}
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Pilih Kecamatan"
-                      variant="outlined"
-                    />
+                    <TextField {...params} label="Pilih Kecamatan" />
                   )}
                 />
                 <TextField
                   value={stateBody?.mstAlamat}
                   onChange={(e) =>
-                    setStateBody({ ...stateBody, mstAlamat: e.target.value })
+                    setStateBody({
+                      ...stateBody,
+                      mstAlamat: sanitizeInput(e.target.value),
+                    })
                   }
-                  id="outlined-basic"
                   label="Alamat"
                   variant="outlined"
                   className="flex-grow"
@@ -418,11 +387,11 @@ function MasterNasabahHeader(props) {
           </Button>
         </DialogActions>
       </Dialog>
+
       <Typography
         component={motion.span}
         initial={{ x: -20 }}
         animate={{ x: 0, transition: { delay: 0.2 } }}
-        delay={300}
         className="text-24 md:text-32 font-extrabold tracking-tight"
       >
         Master Nasabah
@@ -436,7 +405,6 @@ function MasterNasabahHeader(props) {
           className="flex items-center w-full sm:max-w-256 space-x-8 px-16 rounded-full border-1 shadow-0"
         >
           <FuseSvgIcon color="disabled">heroicons-solid:search</FuseSvgIcon>
-
           <Input
             placeholder="Cari Nasabah"
             className="flex flex-1"
@@ -454,9 +422,6 @@ function MasterNasabahHeader(props) {
           animate={{ opacity: 1, x: 0, transition: { delay: 0.2 } }}
         >
           <Button
-            className=""
-            // component={Link}
-            // to="/apps/e-commerce/products/new"
             onClick={handleClickOpen}
             variant="contained"
             color="secondary"

@@ -598,7 +598,7 @@ function PengajuanHeader(props) {
                 variant="outlined"
               />
 
-              <TextField
+              {/* <TextField
                 value={stateBody?.nomorAkad}
                 onChange={(e) =>
                   setStateBody({ ...stateBody, nomorAkad: e.target.value })
@@ -608,7 +608,7 @@ function PengajuanHeader(props) {
                 label="Nomor Akad"
                 type="text"
                 variant="outlined"
-              />
+              /> */}
             </div>
             <div>
               <ul>

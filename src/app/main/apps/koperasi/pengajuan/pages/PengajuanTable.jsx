@@ -57,6 +57,13 @@ const columns = [
     textSytle: "",
   },
   {
+    id: "noAkad",
+    label: "Nomer Akad",
+    minWidth: 170,
+    align: "left",
+    textSytle: "",
+  },
+  {
     id: "rekening",
     label: "Rekening",
     minWidth: 170,
@@ -1125,7 +1132,7 @@ export default function PengajuanTable(props) {
                 variant="outlined"
               />
 
-              <TextField
+              {/* <TextField
                 value={dataEdit?.nomorAkad}
                 onChange={(e) =>
                   setDataEdit({ ...dataEdit, nomorAkad: e.target.value })
@@ -1135,7 +1142,7 @@ export default function PengajuanTable(props) {
                 label="Nomor Akad"
                 type="text"
                 variant="outlined"
-              />
+              /> */}
             </div>
           </DialogContentText>
         </DialogContent>
@@ -1182,6 +1189,11 @@ export default function PengajuanTable(props) {
                       {row?.namaNasabah?.nama === null
                         ? "-"
                         : row?.namaNasabah?.nama}
+                    </TableCell>
+                    <TableCell>
+                      {row?.nomorAkad === null
+                        ? "-"
+                        : row?.nomorAkad}
                     </TableCell>
                     <TableCell>
                       {row?.rekening?.rekening === null
