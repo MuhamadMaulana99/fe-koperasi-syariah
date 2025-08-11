@@ -1052,29 +1052,30 @@ export default function PengajuanTable(props) {
 
               <TextField
                 value={dataEdit?.rasioAngsuran}
-                onChange={(e) =>
-                  setDataEdit({ ...dataEdit, rasioAngsuran: e.target.value })
-                }
+                onChange={(e) => {
+                  const onlyNumbers = e.target.value.replace(/[^0-9]/g, ""); // filter angka
+                  setDataEdit({ ...dataEdit, rasioAngsuran: onlyNumbers });
+                }}
                 sx={{ width: 370 }}
                 id="outlined-basic"
                 label="Rasio Angsuran"
-                // helperText="persen%"
-                type="number"
+                type="text"
                 variant="outlined"
               />
 
               <TextField
                 value={dataEdit?.jangkaWaktu}
-                onChange={(e) =>
-                  setDataEdit({ ...dataEdit, jangkaWaktu: e.target.value })
-                }
+                onChange={(e) => {
+                  const onlyNumbers = e.target.value.replace(/[^0-9]/g, "");
+                  setDataEdit({ ...dataEdit, jangkaWaktu: onlyNumbers });
+                }}
                 sx={{ width: 370 }}
                 id="outlined-basic"
                 label="Jangka Waktu"
-                // helperText="bulan cnth 1bulan"
-                type="number"
+                type="text"
                 variant="outlined"
               />
+
               <TextField
                 value={dataEdit?.nominalPermohonan}
                 onChange={(e) => {
@@ -1096,12 +1097,16 @@ export default function PengajuanTable(props) {
               />
               <TextField
                 value={dataEdit?.tujuanPembiayaan}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const cleanValue = e.target.value.replace(
+                    /[^a-zA-Z0-9]/g,
+                    ""
+                  );
                   setDataEdit({
                     ...dataEdit,
-                    tujuanPembiayaan: e.target.value,
-                  })
-                }
+                    tujuanPembiayaan: cleanValue,
+                  });
+                }}
                 sx={{ width: 370 }}
                 id="outlined-basic"
                 label="Tujuan Pembiyaan"
@@ -1191,9 +1196,7 @@ export default function PengajuanTable(props) {
                         : row?.namaNasabah?.nama}
                     </TableCell>
                     <TableCell>
-                      {row?.nomorAkad === null
-                        ? "-"
-                        : row?.nomorAkad}
+                      {row?.nomorAkad === null ? "-" : row?.nomorAkad}
                     </TableCell>
                     <TableCell>
                       {row?.rekening?.rekening === null

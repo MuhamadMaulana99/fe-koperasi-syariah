@@ -139,7 +139,7 @@ function PengajuanHeader(props) {
     (parseInt(stateBody?.rasioAngsuran, 10) / 100) *
     countPendapatanBersih *
     parseInt(stateBody?.jangkaWaktu, 10);
-  console.log(stateBody, 'stateBody')
+  console.log(stateBody, "stateBody");
   // console.log(countJumlahBiayaLuarUsaha, 'countJumlahBiayaLuarUsaha')
   // console.log(parseInt(convertToInteger(stateBody?.kebutuhanRumahTangga), 10), 'parseInt(convertToInteger(stateBody?.kebutuhanRumahTangga), 10)')
   // console.log(parseInt(convertToInteger(stateBody?.biayaPendidikan), 10), 'parseInt(convertToInteger(stateBody?.biayaPendidikan), 10)')
@@ -518,29 +518,30 @@ function PengajuanHeader(props) {
 
               <TextField
                 value={stateBody?.rasioAngsuran}
-                onChange={(e) =>
-                  setStateBody({ ...stateBody, rasioAngsuran: e.target.value })
-                }
+                onChange={(e) => {
+                  const onlyNumbers = e.target.value.replace(/[^0-9]/g, ""); // hapus semua kecuali angka
+                  setStateBody({ ...stateBody, rasioAngsuran: onlyNumbers });
+                }}
                 sx={{ width: 370 }}
                 id="outlined-basic"
                 label="Rasio Angsuran"
-                // helperText="persen%"
-                type="number"
+                type="text" // ganti ke text biar bebas filter manual
                 variant="outlined"
               />
 
               <TextField
                 value={stateBody?.jangkaWaktu}
-                onChange={(e) =>
-                  setStateBody({ ...stateBody, jangkaWaktu: e.target.value })
-                }
+                onChange={(e) => {
+                  const onlyNumbers = e.target.value.replace(/[^0-9]/g, "");
+                  setStateBody({ ...stateBody, jangkaWaktu: onlyNumbers });
+                }}
                 sx={{ width: 370 }}
                 id="outlined-basic"
                 label="Jangka Waktu"
-                // helperText="bulan cnth 1bulan"
-                type="number"
+                type="text"
                 variant="outlined"
               />
+
               <TextField
                 value={stateBody?.nominalPermohonan}
                 onChange={(e) => {
@@ -562,12 +563,16 @@ function PengajuanHeader(props) {
               />
               <TextField
                 value={stateBody?.tujuanPembiayaan}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const cleanValue = e.target.value.replace(
+                    /[^a-zA-Z0-9]/g,
+                    ""
+                  );
                   setStateBody({
                     ...stateBody,
-                    tujuanPembiayaan: e.target.value,
-                  })
-                }
+                    tujuanPembiayaan: cleanValue,
+                  });
+                }}
                 sx={{ width: 370 }}
                 id="outlined-basic"
                 label="Tujuan Pembiyaan"
