@@ -1,12 +1,4 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable no-unsafe-optional-chaining */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable new-cap */
-/* eslint-disable no-plusplus */
-/* eslint-disable func-names */
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable no-shadow */
+
 import Button from "@mui/material/Button";
 import Input from "@mui/material/Input";
 import Paper from "@mui/material/Paper";
@@ -139,7 +131,7 @@ function PengajuanHeader(props) {
     (parseInt(stateBody?.rasioAngsuran, 10) / 100) *
     countPendapatanBersih *
     parseInt(stateBody?.jangkaWaktu, 10);
-  console.log(stateBody, "stateBody");
+  // console.log(stateBody, "stateBody");
   // console.log(countJumlahBiayaLuarUsaha, 'countJumlahBiayaLuarUsaha')
   // console.log(parseInt(convertToInteger(stateBody?.kebutuhanRumahTangga), 10), 'parseInt(convertToInteger(stateBody?.kebutuhanRumahTangga), 10)')
   // console.log(parseInt(convertToInteger(stateBody?.biayaPendidikan), 10), 'parseInt(convertToInteger(stateBody?.biayaPendidikan), 10)')
@@ -212,7 +204,7 @@ function PengajuanHeader(props) {
     foto: null,
   };
 
-  console.log(bodys, "bodys");
+  // console.log(bodys, "bodys");
 
   const HandelSubmit = () => {
     setLoading(true);
@@ -289,7 +281,7 @@ function PengajuanHeader(props) {
 
   const handleFileChange = async (event) => {
     const selectedFile = event.target.files[0];
-    console.log(selectedFile, "selectedFile");
+    // console.log(selectedFile, "selectedFile");
 
     if (selectedFile) {
       const base64String = await convertToBase64(selectedFile);

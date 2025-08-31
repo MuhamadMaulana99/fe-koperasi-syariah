@@ -1180,7 +1180,7 @@ export default function PengajuanTable(props) {
             {rows
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
-                console.log(row, "oo");
+                // console.log(row, "oo");
                 function formatRupiah(amount) {
                   return (
                     "Rp. " +

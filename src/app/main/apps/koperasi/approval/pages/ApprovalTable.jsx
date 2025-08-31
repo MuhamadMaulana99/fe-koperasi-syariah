@@ -56,8 +56,22 @@ const columns = [
     textSytle: "",
   },
   {
+    id: "noAkad",
+    label: "Nomer Akad",
+    minWidth: 170,
+    align: "left",
+    textSytle: "",
+  },
+  {
     id: "nilaiSaw",
     label: "Nilai  SAW",
+    minWidth: 170,
+    align: "left",
+    textSytle: "",
+  },
+  {
+    id: "maxPembiayaan",
+    label: "Max Pembiayaan",
     minWidth: 170,
     align: "left",
     textSytle: "",
@@ -126,6 +140,10 @@ function createData(
     statusAt,
     foto,
   };
+}
+
+function formatRupiah(amount) {
+  return "Rp. " + amount.toLocaleString("id-ID", { minimumFractionDigits: 0 });
 }
 
 export default function ApprovalTable(props) {
@@ -433,14 +451,23 @@ export default function ApprovalTable(props) {
     // Generate table rows using the mapped rows data
     const tableRows = rows?.map((item, index) => [
       index + 1,
-      item?.namaNasabah,
-      fuzzySakamotos(
+      item?.namaNasabah?.nama,
+      item?.nomorAkad,
+      calculatePercentage(
         item?.jumlahPendapatan,
         item?.nominalPermohonan,
         item?.jangkaWaktu,
-        extractInteger(item?.jaminan)
+        item?.jaminan,
+        index
       ),
-      item?.status === null ? "-" : item?.status,
+      item?.accPermohonan === null
+        ? "-"
+        : formatRupiah(parseInt(item?.accPermohonan)),
+      item?.status === "0"
+        ? "Tidak Layak"
+        : item?.status === "1"
+        ? "Layak"
+        : "-",
       ,
     ]);
 
@@ -462,9 +489,11 @@ export default function ApprovalTable(props) {
       columnStyles: {
         // Adjust the width of the columns based on content
         0: { cellWidth: 15 },
-        1: { cellWidth: 82 },
-        2: { cellWidth: 82 },
-        3: { cellWidth: 82 },
+        1: { cellWidth: 50 },
+        2: { cellWidth: 50 },
+        3: { cellWidth: 50 },
+        4: { cellWidth: 50 },
+        5: { cellWidth: 50 },
       },
     };
 
@@ -479,30 +508,44 @@ export default function ApprovalTable(props) {
   };
 
   // Fungsi untuk ekspor ke Excel
+  // Fungsi untuk ekspor ke Excel
   const exportExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Keputusan");
 
-    // Filter out the 'aksi' column and create the worksheet columns
-    const filteredColumns = columns.filter((column) => column.id !== "aksi");
-    worksheet.columns = filteredColumns.map((column) => ({
-      header: column.label,
-      key: column.id,
-      width: column?.id === "no" ? 5 : 20,
-    }));
+    // Buat header sesuai dengan PDF
+    worksheet.columns = [
+      { header: "No", key: "no", width: 5 },
+      { header: "Nama Nasabah", key: "namaNasabah", width: 30 },
+      { header: "Nomor Akad", key: "nomorAkad", width: 20 },
+      { header: "Max Pembiayaan", key: "maxPembiayaan", width: 25 },
+      { header: "Acc Permohonan", key: "accPermohonan", width: 20 },
+      { header: "Keputusan", key: "keputusan", width: 15 },
+    ];
 
-    // Generate data rows using the mapped rows data
+    // Generate data rows sama persis dengan PDF
     rows?.map((item, index) => {
       worksheet.addRow({
         no: index + 1,
-        namaNasabah: item?.namaNasabah,
-        nilaiSaw: fuzzySakamotos(
+        namaNasabah: item?.namaNasabah?.nama,
+        nomorAkad: item?.nomorAkad,
+        maxPembiayaan: calculatePercentage(
           item?.jumlahPendapatan,
           item?.nominalPermohonan,
           item?.jangkaWaktu,
-          extractInteger(item?.jaminan)
+          item?.jaminan,
+          index
         ),
-        keputusan: item?.status === null ? "-" : item?.status,
+        accPermohonan:
+          item?.accPermohonan === null
+            ? "-"
+            : formatRupiah(parseInt(item?.accPermohonan)),
+        keputusan:
+          item?.status === "0"
+            ? "Tidak Layak"
+            : item?.status === "1"
+            ? "Layak"
+            : "-",
       });
     });
 
@@ -563,7 +606,6 @@ export default function ApprovalTable(props) {
     const valResultJangkaWaktu = results?.jangkaWaktu?.min / ValJangkaWaktu;
     const valResultJaminan = ValJaminan / results?.jaminan?.max;
 
-
     // Menghitung nilai akhir
     const res =
       benefit.pendapatan * valResultPendapatan +
@@ -576,7 +618,6 @@ export default function ApprovalTable(props) {
 
     return percent;
   };
-
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -744,21 +785,14 @@ export default function ApprovalTable(props) {
             {rows
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
-                // console.log(row, "oo");
-                // function formatRupiah(amount) {
-                //   return (
-                //     "Rp. " +
-                //     amount.toLocaleString("id-ID", { minimumFractionDigits: 0 })
-                //   );
-                // }
-                // console.log(
-                //   extractInteger(row?.jaminan),
-                //   " extractInteger(row?.jaminan)"
-                // );
-                // console.log(row?.jumlahPendapatan, "  row?.jumlahPendapatan");
-                // console.log(row?.nominalPermohonan, " row?.nominalPermohonan");
-                // console.log(row?.jangkaWaktu, " row?.jangkaWaktu");
-                // console.log(row?.jaminan, " row?.jaminan");
+                const resultEnd = calculatePercentage(
+                  row?.jumlahPendapatan,
+                  row?.nominalPermohonan,
+                  row?.jangkaWaktu,
+                  row?.jaminan,
+                  index
+                );
+                console.log(resultEnd, "aaa");
 
                 return (
                   <TableRow key={row.id} hover role="checkbox" tabIndex={-1}>
@@ -769,6 +803,9 @@ export default function ApprovalTable(props) {
                         : row?.namaNasabah?.nama}
                     </TableCell>
                     <TableCell>
+                      {row?.nomorAkad === null ? "-" : row?.nomorAkad}
+                    </TableCell>
+                    <TableCell>
                       {calculatePercentage(
                         row?.jumlahPendapatan,
                         row?.nominalPermohonan,
@@ -777,6 +814,11 @@ export default function ApprovalTable(props) {
                         index
                       )}
                       {/* {fuzzySakamotos(10000000, 60000000, 7, 570000)} */}
+                    </TableCell>
+                    <TableCell>
+                      {row?.accPermohonan === null
+                        ? "-"
+                        : formatRupiah(parseInt(row?.accPermohonan))}
                     </TableCell>
                     <TableCell>
                       {row?.status === null ? (
